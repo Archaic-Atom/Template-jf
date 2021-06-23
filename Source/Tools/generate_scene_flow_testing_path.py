@@ -29,16 +29,24 @@ def convert_num2char(folder_id: int):
     return res
 
 
-def gen_raw_path(folder_id: int, folder_num: int, file_folder: str, num: int)->str:
-    path = ROOT_PATH + RAW_DATA_FOLDER % folder_id + FOLDER_NAME_FORMAT % folder_num + \
-        FILE_NAME % (file_folder, num) + RAW_DATA_TYPE
-    return path
+def gen_raw_path(folder_id: int, folder_num: int, file_folder: str, num: int) -> str:
+    return (
+        ROOT_PATH
+        + RAW_DATA_FOLDER % folder_id
+        + FOLDER_NAME_FORMAT % folder_num
+        + FILE_NAME % (file_folder, num)
+        + RAW_DATA_TYPE
+    )
 
 
-def gen_label_path(folder_id: int, folder_num: int, file_folder: str, num: int)->str:
-    path = ROOT_PATH + LABLE_FOLDER % folder_id + FOLDER_NAME_FORMAT % folder_num + \
-        FILE_NAME % (file_folder, num) + LABEL_TYPE
-    return path
+def gen_label_path(folder_id: int, folder_num: int, file_folder: str, num: int) -> str:
+    return (
+        ROOT_PATH
+        + LABLE_FOLDER % folder_id
+        + FOLDER_NAME_FORMAT % folder_num
+        + FILE_NAME % (file_folder, num)
+        + LABEL_TYPE
+    )
 
 
 def open_file() -> object:
@@ -58,7 +66,7 @@ def output_data(output_file: object, data: str):
     output_file.flush()
 
 
-def gen_list(fd_train_list: object)->int:
+def gen_list(fd_train_list: object) -> int:
     total = 0
     for i in range(ID_NUM):
         for folder_num in range(FOLDER_NUM):
@@ -80,8 +88,8 @@ def gen_list(fd_train_list: object)->int:
                 data_str = raw_left_path + ',' + raw_right_path + ',' + lable_path
                 output_data(fd_train_list, data_str)
 
-                num = num + OFF_SET
-                total = total + OFF_SET
+                num += OFF_SET
+                total += OFF_SET
     return total
 
 

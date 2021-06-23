@@ -20,8 +20,7 @@ ACC_EPSILON = 1e-9
 
 def read_label_list(list_path: str):
     input_dataframe = pd.read_csv(list_path)
-    gt_dsp_path = input_dataframe["gt_disp"].values
-    return gt_dsp_path
+    return input_dataframe["gt_disp"].values
 
 
 def d_1(res: tensor, gt: tensor, start_threshold: int = 2,
@@ -126,8 +125,8 @@ def print_total(total: np.array, err_total: int,
     str_data = 'total '
     for j in range(threshold_num):
         d1_str = '%dpx: %f ' % (j + offset, total[j] / total_img_num)
-        str_data = str_data + d1_str
-    str_data = str_data + 'mae: %f' % (err_total / total_img_num)
+        str_data += d1_str
+    str_data += 'mae: %f' % (err_total / total_img_num)
     print(str_data)
 
 
@@ -143,7 +142,7 @@ def cal_total(id_num: int, total: np.array, err_total: int,
 
     mae_res = mae.cpu()
     mae_res = mae_res.detach().numpy()
-    err_total = err_total + mae_res
+    err_total += mae_res
 
     str_data = str_data + str(mae_res)
     print(str_data)

@@ -31,15 +31,23 @@ def convert_num_to_char(folder_id: int):
 
 
 def gen_raw_path(folder_id: int, folder_num: int, file_folder: str, num: int) -> str:
-    path = ROOT_PATH + RAW_DATA_FOLDER % folder_id + FOLDER_NAME_FORMAT % folder_num + \
-        FILE_NAME % (file_folder, num) + RAW_DATA_TYPE
-    return path
+    return (
+        ROOT_PATH
+        + RAW_DATA_FOLDER % folder_id
+        + FOLDER_NAME_FORMAT % folder_num
+        + FILE_NAME % (file_folder, num)
+        + RAW_DATA_TYPE
+    )
 
 
-def gen_label_path(folder_id: int, folder_num: int, file_folder: str, num: int)->str:
-    path = ROOT_PATH + LABLE_FOLDER % folder_id + FOLDER_NAME_FORMAT % folder_num + \
-        FILE_NAME % (file_folder, num) + LABEL_TYPE
-    return path
+def gen_label_path(folder_id: int, folder_num: int, file_folder: str, num: int) -> str:
+    return (
+        ROOT_PATH
+        + LABLE_FOLDER % folder_id
+        + FOLDER_NAME_FORMAT % folder_num
+        + FILE_NAME % (file_folder, num)
+        + LABEL_TYPE
+    )
 
 
 def open_file()->object:
@@ -61,7 +69,7 @@ def output_data(output_file: object, data: str)->None:
     output_file.flush()
 
 
-def gen_list_flyingthing(fd_train_list: object, fd_label_list: object)->int:
+def gen_list_flyingthing(fd_train_list: object, fd_label_list: object) -> int:
     total = 0
     for idx in range(ID_NUM):
         for folder_num in range(FOLDER_NUM):
@@ -83,12 +91,12 @@ def gen_list_flyingthing(fd_train_list: object, fd_label_list: object)->int:
                 output_data(fd_train_list, data_str)
                 # output_data(fd_train_list, rawRightPath)
                 # output_data(fd_label_list, lablePath)
-                num = num + 1
-                total = total + 1
+                num += 1
+                total += 1
     return total
 
 
-def gen_list_driving(fd_train_list: object, fd_label_list: object)->int:
+def gen_list_driving(fd_train_list: object, fd_label_list: object) -> int:
     folder_list = ['15mm_focallength/scene_backwards/fast',
                    '15mm_focallength/scene_backwards/slow',
                    '15mm_focallength/scene_forwards/fast',
@@ -97,12 +105,10 @@ def gen_list_driving(fd_train_list: object, fd_label_list: object)->int:
                    '35mm_focallength/scene_backwards/slow',
                    '35mm_focallength/scene_forwards/fast',
                    '35mm_focallength/scene_forwards/slow']
-    total = produce_list(folder_list, fd_train_list, fd_label_list)
-
-    return total
+    return produce_list(folder_list, fd_train_list, fd_label_list)
 
 
-def gen_list_monkey(fd_train_list: object, fd_label_list: object)->int:
+def gen_list_monkey(fd_train_list: object, fd_label_list: object) -> int:
     folder_list = ['a_rain_of_stones_x2',
                    'eating_camera2_x2',
                    'eating_naked_camera2_x2',
@@ -127,16 +133,14 @@ def gen_list_monkey(fd_train_list: object, fd_label_list: object)->int:
                    'treeflight_augmented0_x2',
                    'treeflight_augmented1_x2',
                    'treeflight_x2']
-    total = produce_list(folder_list, fd_train_list, fd_label_list)
-
-    return total
+    return produce_list(folder_list, fd_train_list, fd_label_list)
 
 
-def produce_list(folder_list: list, fd_train_list: object, fd_label_list: object)->int:
+def produce_list(folder_list: list, fd_train_list: object, fd_label_list: object) -> int:
     total = 0
-    for i in range(len(folder_list)):
-        img_folder_path = ROOT_PATH + RAW_DATA_FOLDER % folder_list[i]
-        gt_foler_path = ROOT_PATH + LABLE_FOLDER % folder_list[i]
+    for folder in folder_list:
+        img_folder_path = ROOT_PATH + RAW_DATA_FOLDER % folder
+        gt_foler_path = ROOT_PATH + LABLE_FOLDER % folder
 
         # print img_folder_path
 
@@ -165,7 +169,7 @@ def produce_list(folder_list: list, fd_train_list: object, fd_label_list: object
             output_data(fd_train_list, data_str)
             # output_data(fd_train_list, right_img_path)
             # output_data(fd_label_list, gt_img_path)
-            total = total + 1
+            total += 1
 
     return total
 

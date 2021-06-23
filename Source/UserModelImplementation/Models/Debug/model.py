@@ -53,6 +53,4 @@ class Model(nn.Module):
         right_img, reduce_right_img = self.feature_extraction(right_img)
 
         cost = self.cost_volume(left_img, reduce_left_img, right_img, reduce_right_img)
-        disp_0 = self.feature_matching(cost, self.__disp_num, height, width)
-
-        return disp_0
+        return self.feature_matching(cost, self.__disp_num, height, width)

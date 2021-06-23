@@ -30,10 +30,9 @@ TIMES = 200     # the sample of val
 TEST_FLAG = True
 
 
-def gen_raw_path(file_folder: str, num: int)->str:
-    path = ROOT_PATH + RAW_DATA_FOLDER % file_folder + FILE_NAME % num + \
+def gen_raw_path(file_folder: str, num: int) -> str:
+    return ROOT_PATH + RAW_DATA_FOLDER % file_folder + FILE_NAME % num + \
         RAW_DATA_TYPE
-    return path
 
 
 def open_file()->object:
@@ -77,14 +76,13 @@ def gen_list(fd_train_list, fd_val_train_list):
                 (not lable_path_is_exists) and (not raw_right_path_is_exists):
             break
 
+        data_str = raw_left_path + ',' + raw_right_path + ',' + lable_path
         if (off_set+num) % TIMES == 0:
-            data_str = raw_left_path + ',' + raw_right_path + ',' + lable_path
             output_data(fd_val_train_list, data_str)
         else:
-            data_str = raw_left_path + ',' + raw_right_path + ',' + lable_path
             output_data(fd_train_list, data_str)
 
-        total = total + 1
+        total += 1
 
     return total
 

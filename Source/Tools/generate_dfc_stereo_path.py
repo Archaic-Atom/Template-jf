@@ -11,9 +11,7 @@ def open_file() -> object:
     if os.path.exists(TRAIN_LIST_PATH):
         os.remove(TRAIN_LIST_PATH)
 
-    fd_train_list = open(TRAIN_LIST_PATH, 'a')
-
-    return fd_train_list
+    return open(TRAIN_LIST_PATH, 'a')
 
 
 def output_data(outputFile: object, data: str) -> None:

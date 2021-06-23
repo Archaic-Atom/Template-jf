@@ -105,5 +105,4 @@ class StereoDataloader(jf.UserTemplate.DataHandlerTemplate):
 
     def show_intermediate_result(self, epoch: int,
                                  loss: list, acc: list) -> str:
-        info_str = self.__result_str.training_intermediate_result(epoch, loss[0], acc[0])
-        return info_str
+        return self.__result_str.training_intermediate_result(epoch, loss[0], acc[0])

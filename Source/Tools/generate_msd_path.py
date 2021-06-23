@@ -4,13 +4,11 @@ import glob
 import linecache
 
 
-def open_file(path: str, is_continue: bool = False)->object:
-    if is_continue == False:
-        if os.path.exists(path):
-            os.remove(path)
+def open_file(path: str, is_continue: bool = False) -> object:
+    if not is_continue and os.path.exists(path):
+        os.remove(path)
 
-    file = open(path, 'a')
-    return file
+    return open(path, 'a')
 
 
 def output_data(outputFile: object, data: str)->None:
@@ -34,14 +32,13 @@ def get_line(filename: str, line_num: int)-> str:
     return path
 
 
-def get_file_id(file_path: str, file_format: str)->str:
+def get_file_id(file_path: str, file_format: str) -> str:
     # print(file_path)
     off_set = 1
     file_name = os.path.basename(file_path)
     pos = file_name.rfind(file_format[off_set:len(file_format)])
-    file_id = file_name[0:pos]
     # print(file_id)
-    return file_id
+    return file_name[0:pos]
 
 
 def generate_data_list(image_fn: str, label_fn: str, group: int) -> str:
@@ -53,9 +50,8 @@ def generate_table_head(fd_training_files: object)-> None:
     output_data(fd_training_files, data_str)
 
 
-def get_val_list(path: str)->list:
-    val_list = linecache.getlines(path)
-    return val_list
+def get_val_list(path: str) -> list:
+    return linecache.getlines(path)
 
 
 def generate_msd_training_list(data_path: str, save_path: str,
@@ -73,9 +69,8 @@ def generate_msd_training_list(data_path: str, save_path: str,
         file = files[i]
         file_id = get_file_id(file, image_file_format)
 
-        if val_list is not None:
-            if (file_id + '\n') not in val_list:
-                continue
+        if val_list is not None and (file_id + '\n') not in val_list:
+            continue
 
         label_fn = data_path + label_file_format % file_id
         data_str = generate_data_list(file, label_fn, group)

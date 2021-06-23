@@ -49,10 +49,8 @@ class FeatureExtraction(nn.Module):
             64, out_reduce_channels, 1,
             padding=0, bias=True, norm=False, act=False)
 
-    def __first_layer(self, in_channels: int, out_channels: int)->object:
-        layer = []
-        layer.append(jf.layer.conv_2d_layer(
-            in_channels, out_channels, 3, 2))
+    def __first_layer(self, in_channels: int, out_channels: int) -> object:
+        layer = [jf.layer.conv_2d_layer(in_channels, out_channels, 3, 2)]
         layer.append(jf.layer.conv_2d_layer(
             out_channels, out_channels, 3))
         layer.append(jf.layer.conv_2d_layer(
@@ -62,13 +60,13 @@ class FeatureExtraction(nn.Module):
         return nn.Sequential(*layer)
 
     def __make_block(self, in_channels: int, out_channels: int,
-                     block_num: int, dilation: int)->object:
-        layer = []
-
-        layer.append(
+                     block_num: int, dilation: int) -> object:
+        layer = [
             jf.layer.conv_2d_layer(
-                in_channels, out_channels, 3,
-                padding=dilation, dilation=dilation))
+                in_channels, out_channels, 3, padding=dilation, dilation=dilation
+            )
+        ]
+
 
         for _ in range(block_num):
             layer.append(jf.block.Res2DBlock(
@@ -202,30 +200,35 @@ class FeatureMatching(nn.Module):
 
         self.last_layer = self.__last_layer(hidden_channels, out_channels)
 
-    def __first_layer(self, in_channels: int, out_channels: int)->object:
-        layer = []
-        layer.append(jf.layer.conv_3d_layer(in_channels, out_channels*2, 3))
+    def __first_layer(self, in_channels: int, out_channels: int) -> object:
+        layer = [jf.layer.conv_3d_layer(in_channels, out_channels*2, 3)]
         layer.append(jf.layer.conv_3d_layer(out_channels*2, out_channels, 3))
         layer.append(jf.block.Res3DBlock(out_channels, out_channels, 3))
         return nn.Sequential(*layer)
 
-    def __down_sampling_block(self, in_channels: int, out_channels: int)->tensor:
-        layer = []
-        layer.append(jf.layer.conv_3d_layer(in_channels, out_channels, 3, 2))
+    def __down_sampling_block(self, in_channels: int, out_channels: int) -> tensor:
+        layer = [jf.layer.conv_3d_layer(in_channels, out_channels, 3, 2)]
         layer.append(jf.block.Res3DBlock(out_channels, out_channels, 3))
         return nn.Sequential(*layer)
 
-    def __up_sampling_block(self, in_channels: int, out_channels: int)->tensor:
-        layer = []
-        layer.append(jf.layer.deconv_3d_layer(in_channels, out_channels, 3, 2, 1, 1))
+    def __up_sampling_block(self, in_channels: int, out_channels: int) -> tensor:
+        layer = [jf.layer.deconv_3d_layer(in_channels, out_channels, 3, 2, 1, 1)]
         layer.append(jf.block.Res3DBlock(out_channels, out_channels, 3))
         return nn.Sequential(*layer)
 
-    def __last_layer(self, in_channels: int, out_channels: int)->tensor:
-        layer = []
-        layer.append(jf.layer.deconv_3d_layer(
-            in_channels, in_channels // 2, 3, 2,
-            padding=1, bias=True, norm=False, act=False))
+    def __last_layer(self, in_channels: int, out_channels: int) -> tensor:
+        layer = [
+            jf.layer.deconv_3d_layer(
+                in_channels,
+                in_channels // 2,
+                3,
+                2,
+                padding=1,
+                bias=True,
+                norm=False,
+                act=False,
+            )
+        ]
 
         layer.append(jf.layer.deconv_3d_layer(
             in_channels // 2, out_channels, 3, 2,

@@ -5,8 +5,7 @@ import cv2
 
 
 def add_module(lib_path: str) -> object:
-    module = ctypes.cdll.LoadLibrary(lib_path)
-    return module
+    return ctypes.cdll.LoadLibrary(lib_path)
 
 
 class CSgmInterface(object):

@@ -120,18 +120,11 @@ def main():
 
         # Load the independent predictions for both years
         with rasterio.open(fn_2013) as f:
-            if args.soft_assignment:
-                t1 = np.rollaxis(f.read(), 0, 3)
-            else:
-                t1 = f.read(1)
+            t1 = np.rollaxis(f.read(), 0, 3) if args.soft_assignment else f.read(1)
             input_profile = f.profile.copy()  # save the metadata for writing output
 
         with rasterio.open(fn_2017) as f:
-            if args.soft_assignment:
-                t2 = np.rollaxis(f.read(), 0, 3)
-            else:
-                t2 = f.read(1)
-
+            t2 = np.rollaxis(f.read(), 0, 3) if args.soft_assignment else f.read(1)
         # Convert to reduced land cover predictions
         if args.soft_assignment:
             t1_reduced = (t1 @ NLCD_IDX_TO_REDUCED_LC_ACCUMULATOR).argmax(axis=2)
