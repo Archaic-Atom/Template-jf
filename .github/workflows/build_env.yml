@@ -19,4 +19,4 @@ jobs:
         # $CONDA is an environment variable pointing to the root of the miniconda directory
         echo $CONDA/bin >> $GITHUB_PATH
     - name: Install JackFramework
-      uses: Archaic-Atom/JackFramework@install
+      uses: Archaic-Atom/JackFramework@0.1.2
