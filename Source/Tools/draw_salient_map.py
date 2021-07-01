@@ -6,7 +6,7 @@ from copy import deepcopy
 
 
 def main():
-	path = '/Users/rhc/WorkPlace/tmp/OMA389_028_025_LEFT_DSP.tif'
+    path = '/Users/rhc/WorkPlace/tmp/OMA389_028_025_LEFT_DSP.tif'
     img = np.array(tifffile.imread(path))
     labels = deepcopy(img)
     labels[:] = 255
@@ -16,5 +16,4 @@ def main():
 
 
 if __name__ == '__main__':
-	main()
-
+    main()

@@ -12,7 +12,7 @@ CUDA_VISIBLE_DEVICES=6,7 python -u Source/main.py \
                         --sampleNum 1 \
                         --lr 0.001 \
                         --dist False \
-                        --modelName debug \
+                        --modelName Debug \
                         --outputDir ./DebugResult/ \
                         --modelDir ./DebugCheckpoint/ \
                         --dataset sceneflow

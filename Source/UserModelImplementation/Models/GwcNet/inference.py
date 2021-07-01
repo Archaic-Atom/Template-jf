@@ -8,7 +8,6 @@ import torch.optim as optim
 
 import JackFramework as jf
 import UserModelImplementation.user_define as user_def
-from .model import Model
 
 
 class GwcNet(jf.UserTemplate.ModelHandlerTemplate):
@@ -24,9 +23,8 @@ class GwcNet(jf.UserTemplate.ModelHandlerTemplate):
     def get_model(self) -> list:
         args = self.__args
         # return output
-        # model = jf.sm.GwcNet(args.dispNum)
-        model = Model(user_def.RGB_CHANNELS_NUM,
-                      args.startDisp, args.dispNum)
+        model = jf.sm.GwcNet(args.dispNum)
+
         return [model]
 
     def optimizer(self, model: list, lr: float) -> list:

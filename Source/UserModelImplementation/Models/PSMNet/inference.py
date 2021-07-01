@@ -8,7 +8,6 @@ import torch.optim as optim
 
 import JackFramework as jf
 import UserModelImplementation.user_define as user_def
-from .model import Model
 
 
 class PsmNet(jf.UserTemplate.ModelHandlerTemplate):
@@ -24,7 +23,7 @@ class PsmNet(jf.UserTemplate.ModelHandlerTemplate):
     def get_model(self) -> list:
         args = self.__args
         # return output
-        model = jf.sm.GwcNet(args.dispNum)
+        model = jf.sm.PSMNet(args.dispNum)
         return [model]
 
     def optimizer(self, model: list, lr: float) -> list:
@@ -65,7 +64,7 @@ class PsmNet(jf.UserTemplate.ModelHandlerTemplate):
         mae_0 = None
 
         if self.MODEL_ID == model_id:
-            acc_0, mae_0 = jf.Accuracy.d_1(output_data[3], label_data[0])
+            acc_0, mae_0 = jf.Accuracy.d_1(output_data[2], label_data[0])
 
         return [acc_0[1], mae_0]
 
@@ -84,9 +83,7 @@ class PsmNet(jf.UserTemplate.ModelHandlerTemplate):
             loss_2 = jf.Loss.smooth_l1(
                 output_data[2], label_data[0],
                 args.startDisp, args.startDisp + args.dispNum)
-            loss_3 = jf.Loss.smooth_l1(
-                output_data[3], label_data[0],
-                args.startDisp, args.startDisp + args.dispNum)
-            total_loss = loss_0 + 0.3 * loss_1 + 0.4 * loss_2 + 0.5 * loss_3
+
+            total_loss = loss_0 + 0.3 * loss_1 + 0.4 * loss_2
 
         return [total_loss]
