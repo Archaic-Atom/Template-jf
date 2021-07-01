@@ -20,3 +20,6 @@ jobs:
         echo $CONDA/bin >> $GITHUB_PATH
     - name: Install JackFramework
       uses: Archaic-Atom/JackFramework@master
+        with:
+          branch: develop
+          github_token: ${{ secrets.GITHUB_TOKEN }}
