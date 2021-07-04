@@ -3,11 +3,16 @@ import JackFramework as jf
 import argparse
 
 import UserModelImplementation.user_define as user_def
+
+# model
+from UserModelImplementation.Models.Debug.inference import Debug
 from UserModelImplementation.Models.PSMNet.inference import PsmNet
 from UserModelImplementation.Models.GwcNet.inference import GwcNet
-from UserModelImplementation.Dataloaders.stereo_dataloader import StereoDataloader
+from UserModelImplementation.Models.your_model.inference import YourModel
 
-from UserModelImplementation.Models.Debug.inference import Debug
+# dataloader
+from UserModelImplementation.Dataloaders.stereo_dataloader import StereoDataloader
+from UserModelImplementation.Dataloaders.your_dataloader import YourDataloader
 
 
 class UserInterface(jf.UserTemplate.NetWorkInferenceTemplate):
@@ -34,6 +39,10 @@ class UserInterface(jf.UserTemplate.NetWorkInferenceTemplate):
                 model = Debug(args)
                 dataloader = StereoDataloader(args)
                 break
+            if case('YourModel'):
+                jf.log.warning("Enter the YourModel model!")
+                model = YourModel(args)
+                dataloader = YourDataloader(args)
             if case():
                 model = None
                 dataloader = None
