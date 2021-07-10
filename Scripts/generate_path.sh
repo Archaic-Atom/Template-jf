@@ -1,2 +1,2 @@
 #!/bin/bash
-python Source/Tools/generate_msd_path.py
+python Source/Tools/SemanticSegmentation/generate_msd_path.py
