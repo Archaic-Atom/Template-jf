@@ -1,22 +1,24 @@
->This is the project of the StereoMatching Project. This project based on my framework (if you want to use it to build the Network, you can find it on my website: [fadeshine](http://www.fadeshine.com/). If you have any questions, you can send an e-mail to me. My e-mail: raoxi36@foxmail.com)
+>This is template project for JackFramework (https://github.com/Archaic-Atom/JackFramework). **It is used to rapidly build the model, without caring about the training process (such as DDP or DP, Tensorboard, et al.)**
 
 ### Software Environment
 1. OS Environment
+```
 os >= linux 16.04
 cudaToolKit == 10.1
 cudnn == 7.3.6
-2. Python Environment
-python == 3.8.5
-pythorch == 1.15.0
-numpy == 1.14.5
-opencv == 3.4.0
-PIL == 5.1.0
+```
+
+2. Python Environment (We provide the whole env in )
+```
+python >= 3.8.5
+pythorch >= 1.15.0
+numpy >= 1.14.5
+opencv >= 3.4.0
+PIL >= 5.1.0
+```
 
 ### Hardware Environment
-Training process:
-- GPU: 1080TI * 4 or other memory at least 11G.(Batch size: 1)
-if you not have four gpus, you could change the para of model. The Minimum Testing process:
-- GPU: memory at least 5G. (Batch size: 1)
+The framework only can be used in GPUs.
 
 ### Train the model by running:
 0. Install the JackFramework lib from Github (https://github.com/Archaic-Atom/JackFramework)
@@ -25,46 +27,237 @@ $ cd JackFramework/
 $ ./install.sh
 ```
 
-1. Get the Training list or Testing list （You need rewrite the code by your path, and my related code can be found in Source/Tools）
+1. Get the Training list or Testing list （You need rewrite the code by your path, and my related demo code can be found in Source/Tools/genrate_**_traning_path.py）
 ```
 $ ./GenPath.sh
 ```
 Please check the path. The source code in Source/Tools.
 
-2. Run the pre-training process (This is pre-training process. We will provide the pre-trained model at BaiduYun or Google Driver)
-```
-$ ./Scripts/start_train_scene_flow_stereo_net.sh
-```
-Please carefully check the path in related file.
+2. Implement the model's interface and dataloader's interface of JackFramework in Source/UserModelImplementation/Models/your_model/inference.py and Source/UserModelImplementation/Dataloaders/your_dataloader.py.
 
-3. Run the training cmd (This is fine-tuing process.bg means background running. note that please check the img path should be found in related path, e.g. ./Dataset/trainlist_ETH3D.txt)
-```
-$ ./TrainKitti_2012_bg.sh
-or
-$ ./TrainKitti_2015_bg.sh
-or
-$ ./TrainKitti_ROB_bg.sh
-```
-Please carefully check the path in related file.
+The template of model is shown in follows:
+```python
+# -*- coding: utf-8 -*-
+import numpy as np
 
-4. Run the testing cmd
-```
-$ ./Scripts/start_test_kitti2012_stereo_net.sh
-or 
-$ ./Scripts/start_test_kitti2015_stereo_net.sh.sh
-or 
-$ ./Scripts/start_test_eth3d_stereo_net.sh.sh
-or 
-$ ./Scripts/start_test_middlebury_stereo_net.sh (for test data)
-or 
-$ ./Scripts/start_test_sceneflow_stereo_net.sh
+import torch
+import torch.nn as nn
+import torch.nn.functional as F
+import torch.optim as optim
+
+import JackFramework as jf
+import UserModelImplementation.user_define as user_def
+
+
+class YourModel(jf.UserTemplate.ModelHandlerTemplate):
+    """docstring for DeepLabV3Plus"""
+
+    def __init__(self, args: object) -> object:
+        super().__init__(args)
+        self.__args = args
+
+    def get_model(self) -> list:
+        args = self.__args
+        # return model
+        return []
+
+    def optimizer(self, model: list, lr: float) -> list:
+        args = self.__args
+        # return opt and sch
+        return [], []
+
+    def lr_scheduler(self, sch: object, ave_loss: list, sch_id: int) -> None:
+        # how to do schenduler
+        pass
+
+    def inference(self, model: list, input_data: list, model_id: int) -> list:
+        args = self.__args
+        # return output
+        return []
+
+    def accuary(self, output_data: list, label_data: list, model_id: int) -> list:
+        # return acc
+        args = self.__args
+        return []
+
+    def loss(self, output_data: list, label_data: list, model_id: int) -> list:
+        # return loss
+        args = self.__args
+        return []
+
 ```
 
-if you want to change the para of the model, you can change the *.sh file. Such as:
+The template of Dataloader is shown in follows:
+```python
+# -*- coding: utf-8 -*-
+import torch
+import torch.nn.functional as F
+import pandas as pd
+import numpy as np
+import os
+import rasterio
+
+import JackFramework as jf
+import UserModelImplementation.user_define as user_def
+
+import time
+
+
+class YourDataloader(jf.UserTemplate.DataHandlerTemplate):
+    """docstring for DataHandlerTemplate"""
+
+    def __init__(self, args: object) -> object:
+        super().__init__(args)
+        self.__args = args
+        self.__result_str = jf.ResultStr()
+        self.__train_dataset = None
+        self.__val_dataset = None
+        self.__imgs_num = 0
+        self.__chips_num = 0
+        self.__start_time = 0
+
+    def get_train_dataset(self, path: str, is_training: bool = True) -> object:
+        args = self.__args
+        # return dataset
+
+    def get_val_dataset(self, path: str) -> object:
+        # return dataset
+        args = self.__args
+        # return dataset
+
+    def split_data(self, batch_data: tuple, is_training: bool) -> list:
+        self.__start_time = time.time()
+        if is_training:
+            # return input_data_list, label_data_list
+            return [], []
+            # return input_data, supplement
+        return [], []
+
+    def show_train_result(self, epoch: int, loss:
+                          list, acc: list,
+                          duration: float) -> None:
+        assert len(loss) == len(acc)  # same model number
+        info_str = self.__result_str.training_result_str(epoch, loss[0], acc[0], duration, True)
+        jf.log.info(info_str)
+
+    def show_val_result(self, epoch: int, loss:
+                        list, acc: list,
+                        duration: float) -> None:
+        assert len(loss) == len(acc)  # same model number
+        info_str = self.__result_str.training_result_str(epoch, loss[0], acc[0], duration, False)
+        jf.log.info(info_str)
+
+    def save_result(self, output_data: list, supplement: list,
+                    img_id: int, model_id: int) -> None:
+        assert self.__train_dataset is not None
+        args = self.__args
+
+    def show_intermediate_result(self, epoch: int,
+                                 loss: list, acc: list) -> str:
+        assert len(loss) == len(acc)  # same model number
+        return self.__result_str.training_intermediate_result(epoch, loss[0], acc[0])
+
 ```
-$ vi ./Scripts/start_test_kitti2012_stereo_net.sh
-or 
-$ vi ./Scripts/start_test_eth3d_stereo_net.sh.sh
+
+you must implement the related class for using JackFramework, the demo can be find in Source/UserModelImplementation/Models/Debug/inference.py or Source/UserModelImplementation/Dataloaders/stereo_matching.py. Or you can find the other demo in PSMNet or gwc-Net.
+
+Next, you need implement the interfance file Source/user_interface.py (you can add some parameters in user\_parser function of this file ), as shown in follows:
+```python
+# -*- coding: utf-8 -*-
+import JackFramework as jf
+import argparse
+
+import UserModelImplementation.user_define as user_def
+
+# model
+from UserModelImplementation.Models.Debug.inference import Debug
+from UserModelImplementation.Models.PSMNet.inference import PsmNet
+from UserModelImplementation.Models.GwcNet.inference import GwcNet
+from UserModelImplementation.Models.your_model.inference import YourModel
+
+# dataloader
+from UserModelImplementation.Dataloaders.stereo_dataloader import StereoDataloader
+from UserModelImplementation.Dataloaders.your_dataloader import YourDataloader
+
+
+class UserInterface(jf.UserTemplate.NetWorkInferenceTemplate):
+    """docstring for UserInterface"""
+
+    def __init__(self) -> object:
+        super().__init__()
+
+    def inference(self, args: object) -> object:
+        name = args.modelName
+        for case in jf.Switch(name):
+            if case('PsmNet'):
+                jf.log.info("Enter the PsmNet model")
+                model = PsmNet(args)
+                dataloader = StereoDataloader(args)
+                break
+            if case('GwcNet'):
+                jf.log.info("Enter the GwcNet model")
+                model = GwcNet(args)
+                dataloader = StereoDataloader(args)
+                break
+            if case('Debug'):
+                jf.log.warning("Enter the debug model!!!")
+                model = Debug(args)
+                dataloader = StereoDataloader(args)
+                break
+            if case('YourModel'):
+                jf.log.warning("Enter the YourModel model!")
+                model = YourModel(args)
+                dataloader = YourDataloader(args)
+            if case():
+                model = None
+                dataloader = None
+                jf.log.error("The model's name is error!!!")
+
+        return model, dataloader
+
+    def user_parser(self, parser: object) -> object:
+        parser.add_argument('--startDisp', type=int,
+                            default=user_def.START_DISP,
+                            help='start disparity')
+        parser.add_argument('--dispNum', default=user_def.DISP_NUM,
+                            help='disparity number')
+        parser.add_argument('--lr_scheduler', type=UserInterface.__str2bool,
+                            default=user_def.LR_SCHEDULER,
+                            help='use or not use lr scheduler')
+        return parser
+
+    @staticmethod
+    def __str2bool(arg: str) -> bool:
+        if arg.lower() in ('yes', 'true', 't', 'y', '1'):
+            return True
+        elif arg.lower() in ('no', 'false', 'f', 'n', '0'):
+            return False
+        else:
+            raise argparse.ArgumentTypeError('Boolean value expected.')
+
+```
+
+Finally, you need pass this object to JackFramework, as shown in follows:
+```python
+# -*coding: utf-8 -*-
+import JackFramework as jf
+from UserModelImplementation.user_interface import UserInterface
+
+
+def main()->None:
+    app = jf.Application(UserInterface(), "Stereo Matching Models")
+    app.start()
+
+
+# execute the main function
+if __name__ == "__main__":
+    main()
+
+```
+
+3. Run the program, like:
+```
+$ ./Scripts/start_debug_stereo_net.sh
 ```
 
 ### File Structure
@@ -72,6 +265,9 @@ $ vi ./Scripts/start_test_eth3d_stereo_net.sh.sh
 .
 ├── Source # source code
 │   ├── UserModelImplementation
+│   │   ├── Models            # any models in this folder
+│   │   ├── Dataloaders       # any dataloader in this folder
+│   │   └── user_interface.py # to use model and Dataloader
 │   ├── Tools
 │   ├── main.py
 │   └── ...

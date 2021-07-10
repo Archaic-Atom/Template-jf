@@ -69,7 +69,6 @@ class GwcNet(jf.UserTemplate.ModelHandlerTemplate):
 
         if self.MODEL_ID == model_id:
             acc_0, mae_0 = jf.Accuracy.d_1(output_data[2], label_data[0])
-            # acc_1, mae_1 = jf.Accuracy.d_1(output_data[1], label_data[0])
 
         return [acc_0[1], mae_0]
 

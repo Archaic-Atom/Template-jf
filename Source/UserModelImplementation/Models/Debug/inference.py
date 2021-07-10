@@ -23,8 +23,7 @@ class Debug(jf.UserTemplate.ModelHandlerTemplate):
         args = self.__args
         # return output
         model = jf.sm.GwcNet(args.dispNum)
-        # model = Model(user_def.RGB_CHANNELS_NUM,
-        #              args.startDisp, args.dispNum)
+
         return [model]
 
     def optimizer(self, model: list, lr: float) -> list:
@@ -35,15 +34,16 @@ class Debug(jf.UserTemplate.ModelHandlerTemplate):
         max_warm_up_epoch = 5
         convert_epoch = 30
         off_set = 1
+        lr_factor = 1.0
 
-        def lr_lambda(epoch): return ((epoch + off_set) / max_warm_up_epoch * lr) \
-            if epoch < max_warm_up_epoch else lr if (
-            epoch >= max_warm_up_epoch and epoch < convert_epoch) else lr * 0.1
+        sch = None
+        if args.lr_scheduler:
+            def lr_lambda(epoch): return ((epoch + off_set) / max_warm_up_epoch) \
+                if epoch < max_warm_up_epoch else lr_factor if (
+                epoch >= max_warm_up_epoch and epoch < convert_epoch) else lr_factor * 0.1
 
-        # sch = optim.lr_scheduler.ReduceLROnPlateau(opt, 'min', patience=5,
-        #                                           threshold=0.01,
-        #                                           cooldown=0, verbose=True)
-        sch = optim.lr_scheduler.LambdaLR(opt, lr_lambda=lr_lambda)
+            sch = optim.lr_scheduler.LambdaLR(opt, lr_lambda=lr_lambda)
+
         return [opt], [sch]
 
     def lr_scheduler(self, sch: object, ave_loss: list, sch_id: int) -> None:
