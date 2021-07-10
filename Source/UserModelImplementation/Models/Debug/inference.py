@@ -27,7 +27,7 @@ class Debug(jf.UserTemplate.ModelHandlerTemplate):
         return [model]
 
     def optimizer(self, model: list, lr: float) -> list:
-        # args = self.__args
+        args = self.__args
         # return opt
         opt = optim.AdamW(model[0].parameters(), lr=lr, weight_decay=0.05)
 
