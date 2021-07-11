@@ -12,6 +12,7 @@ import UserModelImplementation.user_define as user_def
 
 class Debug(jf.UserTemplate.ModelHandlerTemplate):
     """docstring for DeepLabV3Plus"""
+    MODEL_ID = 0
 
     def __init__(self, args: object) -> object:
         super().__init__(args)

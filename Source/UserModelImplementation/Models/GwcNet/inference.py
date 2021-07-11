@@ -12,7 +12,7 @@ import UserModelImplementation.user_define as user_def
 
 class GwcNet(jf.UserTemplate.ModelHandlerTemplate):
     """docstring for DeepLabV3Plus"""
-    MODEL_ID = 0  # only SSTTSTEREO
+    MODEL_ID = 0  # only GWC-Net
 
     def __init__(self, args: object) -> object:
         super().__init__(args)
@@ -57,9 +57,9 @@ class GwcNet(jf.UserTemplate.ModelHandlerTemplate):
         disp_0 = None
         if self.MODEL_ID == model_id:
             # print(input_data[0].size())
-            disp_0, disp_1, disp_2 = model(input_data[0], input_data[1])
+            disp_0, disp_1, disp_2, disp_3 = model(input_data[0], input_data[1])
         # print(pred0)
-        return [disp_0, disp_1, disp_2]
+        return [disp_0, disp_1, disp_2, disp_3]
 
     def accuary(self, output_data: list, label_data: list, model_id: int) -> list:
         # return acc
@@ -81,6 +81,15 @@ class GwcNet(jf.UserTemplate.ModelHandlerTemplate):
             loss_0 = jf.Loss.smooth_l1(
                 output_data[0], label_data[0],
                 args.startDisp, args.startDisp + args.dispNum)
-            total_loss = loss_0
+            loss_1 = jf.Loss.smooth_l1(
+                output_data[1], label_data[0],
+                args.startDisp, args.startDisp + args.dispNum)
+            loss_2 = jf.Loss.smooth_l1(
+                output_data[2], label_data[0],
+                args.startDisp, args.startDisp + args.dispNum)
+            loss_3 = jf.Loss.smooth_l1(
+                output_data[3], label_data[0],
+                args.startDisp, args.startDisp + args.dispNum)
+            total_loss = loss_0 + loss_1 + loss_2 + loss_3
 
         return [total_loss, loss_0]
