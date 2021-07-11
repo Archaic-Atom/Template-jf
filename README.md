@@ -1,7 +1,12 @@
+# FrameworkTemplate
 [![Use the JackFramework Demo](https://github.com/Archaic-Atom/FrameworkTemplate/actions/workflows/build_env.yml/badge.svg?event=push)](https://github.com/Archaic-Atom/FrameworkTemplate/actions/workflows/build_env.yml)
+![Python 3.8](https://img.shields.io/badge/python-3.8-green.svg?style=plastic)
+![Pytorch 1.7](https://img.shields.io/badge/PyTorch%20-%23EE4C2C.svg?style=plastic)
+![cuDnn 7.3.6](https://img.shields.io/badge/cudnn-7.3.6-green.svg?style=plastic)
+![License MIT](https://img.shields.io/badge/license-MIT-green.svg?style=plastic)
 
 >This is template project for JackFramework (https://github.com/Archaic-Atom/JackFramework). **It is used to rapidly build the model, without caring about the training process (such as DDP or DP, Tensorboard, et al.)**
-
+---
 ### Software Environment
 1. OS Environment
 ```
@@ -18,7 +23,7 @@ numpy >= 1.14.5
 opencv >= 3.4.0
 PIL >= 5.1.0
 ```
-
+---
 ### Hardware Environment
 The framework only can be used in GPUs.
 
@@ -261,7 +266,7 @@ if __name__ == "__main__":
 ```
 $ ./Scripts/start_debug_stereo_net.sh
 ```
-
+---
 ### File Structure
 ```
 .
@@ -299,7 +304,7 @@ $ ./Scripts/start_debug_stereo_net.sh
 ├── requirements.txt
 └── README.md
 ```
-
+---
 ### Update log
 #### 2021-05-29
 1. Add the depth for transformer;
