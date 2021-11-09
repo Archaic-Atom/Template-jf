@@ -1,11 +1,4 @@
 # -*- coding: utf-8 -*-
-import torch
-import torch.nn.functional as F
-import pandas as pd
-import numpy as np
-import os
-import rasterio
-
 import JackFramework as jf
 import UserModelImplementation.user_define as user_def
 
@@ -22,7 +15,6 @@ class YourDataloader(jf.UserTemplate.DataHandlerTemplate):
         self.__train_dataset = None
         self.__val_dataset = None
         self.__imgs_num = 0
-        self.__chips_num = 0
         self.__start_time = 0
 
     def get_train_dataset(self, path: str, is_training: bool = True) -> object:
