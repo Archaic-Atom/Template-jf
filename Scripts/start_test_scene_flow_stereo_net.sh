@@ -11,7 +11,7 @@ CUDA_VISIBLE_DEVICES=6,7 python -u Source/main.py \
                         --imgNum 4370 \
                         --sampleNum 1 \
                         --lr 0.001 \
-                        --modelName STTStereo \
+                        --modelName YouModel \
                         --outputDir ./DebugResult/ \
                         --modelDir ./Checkpoint/ \
                         --dataset sceneflow

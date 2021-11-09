@@ -4,7 +4,7 @@ from UserModelImplementation.user_interface import UserInterface
 
 
 def main()->None:
-    app = jf.Application(UserInterface(), "Stereo Matching Models")
+    app = jf.Application(UserInterface(), "your network name")
     app.start()
 
 

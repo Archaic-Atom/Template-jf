@@ -11,5 +11,5 @@ CUDA_VISIBLE_DEVICES=0,1,2,3 nohup python -u Source/main.py \
                         --sampleNum 1 \
                         --lr 0.005 \
                         --dist True \
-                        --modelName STTStereo_v2 \
+                        --modelName YouModel \
                         --dataset sceneflow > TrainRun.log 2>&1 &
