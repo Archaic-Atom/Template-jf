@@ -1,8 +1,7 @@
 # -*- coding: utf-8 -*-
+# import UserModelImplementation.user_define as user_def
 import JackFramework as jf
 import argparse
-
-import UserModelImplementation.user_define as user_def
 
 # model
 from UserModelImplementation.Models.Your_Model.inference import YourModel
@@ -24,6 +23,7 @@ class UserInterface(jf.UserTemplate.NetWorkInferenceTemplate):
                 jf.log.warning("Enter the YourModel model!")
                 model = YourModel(args)
                 dataloader = YourDataloader(args)
+                break
             if case():
                 model = None
                 dataloader = None

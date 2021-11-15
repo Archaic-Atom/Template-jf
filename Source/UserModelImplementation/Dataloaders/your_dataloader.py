@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 import JackFramework as jf
-import UserModelImplementation.user_define as user_def
 
+# import UserModelImplementation.user_define as user_def
 import time
 
 
@@ -18,13 +18,15 @@ class YourDataloader(jf.UserTemplate.DataHandlerTemplate):
         self.__start_time = 0
 
     def get_train_dataset(self, path: str, is_training: bool = True) -> object:
-        args = self.__args
+        # args = self.__args
         # return dataset
+        return None
 
     def get_val_dataset(self, path: str) -> object:
         # return dataset
-        args = self.__args
+        # args = self.__args
         # return dataset
+        return None
 
     def split_data(self, batch_data: tuple, is_training: bool) -> list:
         self.__start_time = time.time()
@@ -51,7 +53,9 @@ class YourDataloader(jf.UserTemplate.DataHandlerTemplate):
     def save_result(self, output_data: list, supplement: list,
                     img_id: int, model_id: int) -> None:
         assert self.__train_dataset is not None
-        args = self.__args
+        # args = self.__args
+        # save method
+        pass
 
     def show_intermediate_result(self, epoch: int,
                                  loss: list, acc: list) -> str:
