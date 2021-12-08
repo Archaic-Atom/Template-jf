@@ -1,13 +1,11 @@
 # -*- coding: utf-8 -*-
-# import UserModelImplementation.user_define as user_def
-import JackFramework as jf
 import argparse
+import JackFramework as jf
+# import UserModelImplementation.user_define as user_def
 
-# model
-from UserModelImplementation.Models.Your_Model.inference import YourModel
-
-# dataloader
-from UserModelImplementation.Dataloaders.your_dataloader import YourDataloader
+# model and dataloader
+from UserModelImplementation import Models
+from UserModelImplementation import Dataloaders
 
 
 class UserInterface(jf.UserTemplate.NetWorkInferenceTemplate):
@@ -17,25 +15,13 @@ class UserInterface(jf.UserTemplate.NetWorkInferenceTemplate):
         super().__init__()
 
     def inference(self, args: object) -> object:
-        name = args.modelName
-        for case in jf.Switch(name):
-            if case('YourModel'):
-                jf.log.warning("Enter the YourModel model!")
-                model = YourModel(args)
-                dataloader = YourDataloader(args)
-                break
-            if case():
-                model = None
-                dataloader = None
-                jf.log.error("The model's name is error!!!")
-
+        dataloader = Dataloaders.dataloaders_zoo(args, args.dataset)
+        model = Models.model_zoo(args, args.modelName)
         return model, dataloader
 
     def user_parser(self, parser: object) -> object:
-        # parser.add_argument('--startDisp', type=int,
-        #                    default=user_def.START_DISP,
+        # parser.add_argument('--startDisp', type=int, default=user_def.START_DISP,
         #                    help='start disparity')
-        #
         # return parser
         return None
 

@@ -1,4 +1,4 @@
-# FrameworkTemplate
+# Template-jf
 [![Use the JackFramework Demo](https://github.com/Archaic-Atom/FrameworkTemplate/actions/workflows/build_env.yml/badge.svg?event=push)](https://github.com/Archaic-Atom/FrameworkTemplate/actions/workflows/build_env.yml)
 ![Python 3.8](https://img.shields.io/badge/python-3.8-green.svg?style=plastic)
 ![Pytorch 1.7](https://img.shields.io/badge/PyTorch%20-%23EE4C2C.svg?style=plastic)
@@ -6,6 +6,11 @@
 ![License MIT](https://img.shields.io/badge/license-MIT-green.svg?style=plastic)
 
 >This is template project for JackFramework (https://github.com/Archaic-Atom/JackFramework). **It is used to rapidly build the model, without caring about the training process (such as DDP or DP, Tensorboard, et al.)**
+
+Document：https://www.wolai.com/archaic-atom/rqKJVi7M1x44mPT8CdM1TL
+
+Demo Project: https://github.com/Archaic-Atom/Demo-jf
+
 ---
 ### Software Environment
 1. OS Environment
@@ -45,18 +50,16 @@ Please check the path. The source code in Source/Tools.
 The template of model is shown in follows:
 ```python
 # -*- coding: utf-8 -*-
-import numpy as np
-
-import torch
-import torch.nn as nn
-import torch.nn.functional as F
-import torch.optim as optim
+# import torch
+# import torch.nn as nn
+# import torch.nn.functional as F
+# import torch.optim as optim
 
 import JackFramework as jf
-import UserModelImplementation.user_define as user_def
+# import UserModelImplementation.user_define as user_def
 
 
-class YourModel(jf.UserTemplate.ModelHandlerTemplate):
+class YourModelInterface(jf.UserTemplate.ModelHandlerTemplate):
     """docstring for DeepLabV3Plus"""
 
     def __init__(self, args: object) -> object:
@@ -64,12 +67,12 @@ class YourModel(jf.UserTemplate.ModelHandlerTemplate):
         self.__args = args
 
     def get_model(self) -> list:
-        args = self.__args
+        # args = self.__args
         # return model
         return []
 
     def optimizer(self, model: list, lr: float) -> list:
-        args = self.__args
+        # args = self.__args
         # return opt and sch
         return [], []
 
@@ -78,36 +81,54 @@ class YourModel(jf.UserTemplate.ModelHandlerTemplate):
         pass
 
     def inference(self, model: list, input_data: list, model_id: int) -> list:
-        args = self.__args
+        # args = self.__args
         # return output
         return []
 
     def accuary(self, output_data: list, label_data: list, model_id: int) -> list:
         # return acc
-        args = self.__args
+        # args = self.__args
         return []
 
     def loss(self, output_data: list, label_data: list, model_id: int) -> list:
         # return loss
-        args = self.__args
+        # args = self.__args
         return []
+
+    # Optional
+    def pretreatment(self, epoch: int, rank: object) -> None:
+        # do something before training epoch
+        pass
+
+    # Optional
+    def postprocess(self, epoch: int, rank: object,
+                    ave_tower_loss: list, ave_tower_acc: list) -> None:
+        # do something after training epoch
+        pass
+
+    # Optional
+    def load_model(self, model: object, checkpoint: dict, model_id: int) -> bool:
+        # return False
+        return False
+
+    # Optional
+    def load_opt(self, opt: object, checkpoint: dict, model_id: int) -> bool:
+        # return False
+        return False
+
+    # Optional
+    def save_model(self, epoch: int, model_list: list, opt_list: list) -> dict:
+        # return None
+        return None
 
 ```
 
 The template of Dataloader is shown in follows:
 ```python
 # -*- coding: utf-8 -*-
-import torch
-import torch.nn.functional as F
-import pandas as pd
-import numpy as np
-import os
-import rasterio
-
-import JackFramework as jf
-import UserModelImplementation.user_define as user_def
-
 import time
+import JackFramework as jf
+# import UserModelImplementation.user_define as user_def
 
 
 class YourDataloader(jf.UserTemplate.DataHandlerTemplate):
@@ -120,17 +141,18 @@ class YourDataloader(jf.UserTemplate.DataHandlerTemplate):
         self.__train_dataset = None
         self.__val_dataset = None
         self.__imgs_num = 0
-        self.__chips_num = 0
         self.__start_time = 0
 
     def get_train_dataset(self, path: str, is_training: bool = True) -> object:
-        args = self.__args
+        # args = self.__args
         # return dataset
+        return None
 
     def get_val_dataset(self, path: str) -> object:
         # return dataset
-        args = self.__args
+        # args = self.__args
         # return dataset
+        return None
 
     def split_data(self, batch_data: tuple, is_training: bool) -> list:
         self.__start_time = time.time()
@@ -157,34 +179,30 @@ class YourDataloader(jf.UserTemplate.DataHandlerTemplate):
     def save_result(self, output_data: list, supplement: list,
                     img_id: int, model_id: int) -> None:
         assert self.__train_dataset is not None
-        args = self.__args
+        # args = self.__args
+        # save method
+        pass
 
     def show_intermediate_result(self, epoch: int,
                                  loss: list, acc: list) -> str:
         assert len(loss) == len(acc)  # same model number
         return self.__result_str.training_intermediate_result(epoch, loss[0], acc[0])
 
+
 ```
 
-you must implement the related class for using JackFramework, the demo can be find in Source/UserModelImplementation/Models/Debug/inference.py or Source/UserModelImplementation/Dataloaders/stereo_matching.py. Or you can find the other demo in PSMNet or gwc-Net.
+you must implement the related class for using JackFramework, the demo can be find in Source/UserModelImplementation/Models/Your_Model/inference.py or Source/UserModelImplementation/Dataloaders/your_dataloader.py. Or you can find the other demo in Demo project.
 
-Next, you need implement the interfance file Source/user_interface.py (you can add some parameters in user\_parser function of this file ), as shown in follows:
+Next, you need implement the interface file Source/user_interface.py (you can add some parameters in user\_parser function of this file ), as shown in follows:
 ```python
 # -*- coding: utf-8 -*-
-import JackFramework as jf
 import argparse
+import JackFramework as jf
+# import UserModelImplementation.user_define as user_def
 
-import UserModelImplementation.user_define as user_def
-
-# model
-from UserModelImplementation.Models.Debug.inference import Debug
-from UserModelImplementation.Models.PSMNet.inference import PsmNet
-from UserModelImplementation.Models.GwcNet.inference import GwcNet
-from UserModelImplementation.Models.your_model.inference import YourModel
-
-# dataloader
-from UserModelImplementation.Dataloaders.stereo_dataloader import StereoDataloader
-from UserModelImplementation.Dataloaders.your_dataloader import YourDataloader
+# model and dataloader
+from UserModelImplementation import Models
+from UserModelImplementation import Dataloaders
 
 
 class UserInterface(jf.UserTemplate.NetWorkInferenceTemplate):
@@ -194,44 +212,15 @@ class UserInterface(jf.UserTemplate.NetWorkInferenceTemplate):
         super().__init__()
 
     def inference(self, args: object) -> object:
-        name = args.modelName
-        for case in jf.Switch(name):
-            if case('PsmNet'):
-                jf.log.info("Enter the PsmNet model")
-                model = PsmNet(args)
-                dataloader = StereoDataloader(args)
-                break
-            if case('GwcNet'):
-                jf.log.info("Enter the GwcNet model")
-                model = GwcNet(args)
-                dataloader = StereoDataloader(args)
-                break
-            if case('Debug'):
-                jf.log.warning("Enter the debug model!!!")
-                model = Debug(args)
-                dataloader = StereoDataloader(args)
-                break
-            if case('YourModel'):
-                jf.log.warning("Enter the YourModel model!")
-                model = YourModel(args)
-                dataloader = YourDataloader(args)
-            if case():
-                model = None
-                dataloader = None
-                jf.log.error("The model's name is error!!!")
-
+        dataloader = Dataloaders.dataloaders_zoo(args, args.dataset)
+        model = Models.model_zoo(args, args.modelName)
         return model, dataloader
 
     def user_parser(self, parser: object) -> object:
-        parser.add_argument('--startDisp', type=int,
-                            default=user_def.START_DISP,
-                            help='start disparity')
-        parser.add_argument('--dispNum', default=user_def.DISP_NUM,
-                            help='disparity number')
-        parser.add_argument('--lr_scheduler', type=UserInterface.__str2bool,
-                            default=user_def.LR_SCHEDULER,
-                            help='use or not use lr scheduler')
-        return parser
+        # parser.add_argument('--startDisp', type=int, default=user_def.START_DISP,
+        #                    help='start disparity')
+        # return parser
+        return None
 
     @staticmethod
     def __str2bool(arg: str) -> bool:
@@ -241,7 +230,6 @@ class UserInterface(jf.UserTemplate.NetWorkInferenceTemplate):
             return False
         else:
             raise argparse.ArgumentTypeError('Boolean value expected.')
-
 ```
 
 Finally, you need pass this object to JackFramework, as shown in follows:
@@ -269,39 +257,25 @@ $ ./Scripts/start_debug_stereo_net.sh
 ---
 ### File Structure
 ```
-.
+Template-jf
+├── Datasets # Get it by ./generate_path.sh, you need build folder
+│   ├── dataset_example_training_list.csv
+│   └── ...
+├── Scripts # Get it by ./generate_path.sh, you need build folder
+│   ├── clean.sh         # clean the project
+│   ├── generate_path.sh # generate the tranining or testing list like kitti2015_val_list
+│   ├── start_train_dataset_model.sh # start training command
+│   └── ...
 ├── Source # source code
 │   ├── UserModelImplementation
 │   │   ├── Models            # any models in this folder
-│   │   ├── Dataloaders       # any dataloader in this folder
+│   │   ├── Dataloaders       # any dataloaders in this folder
+│   │   ├── user_define.py    # any global variable in this fi
 │   │   └── user_interface.py # to use model and Dataloader
-│   ├── Tools
+│   ├── Tools # put some tools in this folder
 │   ├── main.py
 │   └── ...
-├── Datasets # Get it by ./GenPath.sh, you need build folder
-│   ├── kitti2012_val_list.csv.txt
-│   ├── kitti2015_val_list.csv.txt
-│   └── ...
-├── Result # The data of Project. Auto Bulid
-│   ├── output.log
-│   ├── train_acc.csv
-│   └── ...
-├── ResultImg # The image of Result. Auto Bulid
-│   ├── 000001_10.png
-│   ├── 000002_10.png
-│   └── ...
-├── Checkpoints # The saved model. Auto Bulid
-│   ├── checkpoint
-│   └── ...
-├── log # The graph of model. Auto Bulid
-│   ├── events.out.tfevents.1541751559.ubuntu
-│   └── ...
-├── Scripts # shell cmd
-│   ├──GetPath.sh
-│   ├──Pre-Train.sh
-│   └── ...
 ├── LICENSE
-├── requirements.txt
 └── README.md
 ```
 ---

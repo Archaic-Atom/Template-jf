@@ -8,7 +8,7 @@ import JackFramework as jf
 # import UserModelImplementation.user_define as user_def
 
 
-class YourModel(jf.UserTemplate.ModelHandlerTemplate):
+class YourModelInterface(jf.UserTemplate.ModelHandlerTemplate):
     """docstring for DeepLabV3Plus"""
 
     def __init__(self, args: object) -> object:

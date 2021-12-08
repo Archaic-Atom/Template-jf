@@ -1,8 +1,7 @@
 # -*- coding: utf-8 -*-
-import JackFramework as jf
-
-# import UserModelImplementation.user_define as user_def
 import time
+import JackFramework as jf
+# import UserModelImplementation.user_define as user_def
 
 
 class YourDataloader(jf.UserTemplate.DataHandlerTemplate):
