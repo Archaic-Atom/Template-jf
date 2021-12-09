@@ -52,9 +52,6 @@ class YourDataloader(jf.UserTemplate.DataHandlerTemplate):
     def save_result(self, output_data: list, supplement: list,
                     img_id: int, model_id: int) -> None:
         assert self.__train_dataset is not None
-        # args = self.__args
-        # save method
-        pass
 
     def show_intermediate_result(self, epoch: int,
                                  loss: list, acc: list) -> str:
