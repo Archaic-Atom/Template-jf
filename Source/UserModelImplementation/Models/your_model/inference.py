@@ -34,7 +34,7 @@ class YourModelInterface(jf.UserTemplate.ModelHandlerTemplate):
         # return output
         return []
 
-    def accuary(self, output_data: list, label_data: list, model_id: int) -> list:
+    def accuracy(self, output_data: list, label_data: list, model_id: int) -> list:
         # return acc
         # args = self.__args
         return []
