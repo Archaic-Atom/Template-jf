@@ -1,0 +1,62 @@
+# Fast lane — runs on every push and PR.
+# 快车道 —— 每次 push 和 PR 都跑。
+#
+# Answers one question: "did this change break the contract?"
+# Import, lint, and an actual end-to-end run on synthetic data.
+# No GPU, no CUDA, no real dataset — none of which this can verify anyway.
+# 只回答一个问题：「这次改动有没有把契约弄坏？」
+# 导入、lint、以及在合成数据上真正跑一遍完整流程。
+# 不需要 GPU / CUDA / 真实数据集 —— 这台机器本来也验证不了那些。
+name: Smoke test
+
+on: [push, pull_request]
+
+# Cancel superseded runs instead of queueing them up.
+# 连续 push 时取消旧的运行，而不是排队堆积。
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  smoke-test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: pip
+          cache-dependency-path: requirements-ci.txt
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install torch --index-url https://download.pytorch.org/whl/cpu
+          pip install -r requirements-ci.txt
+
+      - name: Install JackFramework
+        run: |
+          git clone --depth 1 https://github.com/Archaic-Atom/JackFramework
+          pip install ./JackFramework/Source
+
+      - name: Verify JackFramework imports
+        run: python -c "import JackFramework as jf; print('JackFramework OK')"
+
+      - name: Lint
+        run: |
+          flake8 Source --count --select=E9,F63,F7,F82 --show-source --statistics
+          flake8 Source --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
+
+      # The template must RUN, not merely import — this is the check that
+      # would have caught the postprocess/post_process breakage.
+      # 模板必须能**跑起来**而不只是能导入 —— 正是这一步能拦住
+      # postprocess/post_process 这类问题。
+      - name: Smoke test (train)
+        run: bash Scripts/start_train_dataset_model.sh
+
+      - name: Smoke test (test)
+        run: bash Scripts/start_test_dataset_model.sh

@@ -1,0 +1,26 @@
+# CI-only dependency set / 仅供 CI 使用的依赖表
+#
+# JackFramework's setup.py declares no install_requires, so `pip install`
+# brings in nothing. These are the packages `import JackFramework` pulls
+# EAGERLY — measured by diffing sys.modules across the import, not guessed.
+# Miss any one and the import fails before a single line of user code runs.
+#
+# JackFramework 的 setup.py 没有声明 install_requires，`pip install` 不会
+# 带任何依赖。下面是 `import JackFramework` **急切加载**的包 —— 通过对比
+# 导入前后的 sys.modules 实测得出，不是猜的。少装一个，导入阶段就失败。
+#
+# torch is installed separately from the CPU-only index (see the workflow):
+# the default PyPI wheel drags in ~2.5GB of CUDA that a GPU-less runner
+# can never use.
+# torch 单独从 CPU-only 源装（见 workflow）：PyPI 默认轮子会带进约 2.5GB
+# 的 CUDA，而没有 GPU 的 runner 永远用不上。
+#
+# torchvision is imported lazily and is NOT required.
+# torchvision 是懒加载的，**不需要**。
+
+opencv-python-headless
+numpy
+pillow
+django
+tensorboard
+flake8
