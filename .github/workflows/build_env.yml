@@ -1,51 +1,68 @@
-name: Template smoke test
+# Slow lane — full conda environment verification.
+# 慢车道 —— 完整 conda 环境安装验证。
+#
+# This is the ORIGINAL purpose of this file: prove the documented conda
+# environment still installs. That is a real question worth answering —
+# it just should not gate every commit.
+# 这正是本文件**最初的目的**：验证文档里那套 conda 环境还装得起来。
+# 这个问题确实值得回答 —— 只是不该卡住每一次提交。
+#
+# Dependency drift happens on a WEEKLY timescale, not a per-commit one.
+# Running a 20-minute CUDA install on every push spends the highest
+# possible frequency detecting the lowest-frequency event.
+# 依赖漂移是**按周**发生的，不是按 commit。每次 push 都跑一遍 20 分钟的
+# CUDA 安装，等于用最高频率去检测最低频事件。
+#
+# Failing here does NOT block day-to-day work — but you still find out
+# within a week if the environment has rotted.
+# 这里失败**不会挡住日常提交**，但环境真烂了你一周内就会知道。
+name: Build env (full conda)
 
-on: [push, pull_request]
+on:
+  workflow_dispatch:            # manual / 手动触发
+  schedule:
+    - cron: '0 18 * * 0'        # every Sunday 18:00 UTC / 每周日 UTC 18:00
+
+concurrency:
+  group: ${{ github.workflow }}
+  cancel-in-progress: true
 
 jobs:
-  smoke-test:
+  build-env:
     runs-on: ubuntu-latest
+    timeout-minutes: 60         # conda solving CUDA deps is slow / conda 解 CUDA 依赖很慢
 
     steps:
       - uses: actions/checkout@v4
 
-      - name: Set up Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: '3.11'
+      - name: Clone JackFramework
+        run: git clone --depth 1 https://github.com/Archaic-Atom/JackFramework
 
-      # JackFramework has no install_requires, and `import JackFramework`
-      # eagerly pulls cv2, numpy, torch, PIL, django and
-      # torch.utils.tensorboard. Miss any one and the import fails before
-      # a single line of user code runs.
-      # JackFramework 的 setup.py 没有 install_requires，而
-      # `import JackFramework` 会急切加载 cv2 / numpy / torch / PIL /
-      # django / torch.utils.tensorboard —— 少装一个，导入阶段就失败。
-      - name: Install dependencies
+      # NOTE: the env name comes from environment.yml itself. The previous
+      # version of this workflow hardcoded `JackFramework-torch1.7.1` while
+      # the file declared `JackFramework-torch2.3.1`, so it updated one env
+      # and activated another.
+      # 注意：环境名取自 environment.yml 本身。旧版这里硬编码了
+      # `JackFramework-torch1.7.1`，而文件里声明的是 `JackFramework-torch2.3.1`
+      # —— 更新的是一个环境，激活的是另一个。
+      - name: Install the documented conda environment
         run: |
-          python -m pip install --upgrade pip
-          pip install torch --index-url https://download.pytorch.org/whl/cpu
-          pip install opencv-python-headless numpy pillow django tensorboard flake8
+          set -e
+          echo "$CONDA/bin" >> $GITHUB_PATH
+          export PATH="$CONDA/bin:$PATH"
+          ENV_NAME=$(grep '^name:' JackFramework/environment.yml | awk '{print $2}')
+          echo "environment.yml declares env: ${ENV_NAME}"
+          conda env update --file JackFramework/environment.yml --name "${ENV_NAME}"
+          echo "ENV_NAME=${ENV_NAME}" >> $GITHUB_ENV
 
-      - name: Install JackFramework
+      - name: Install JackFramework into that environment
         run: |
-          git clone --depth 1 https://github.com/Archaic-Atom/JackFramework
+          export PATH="$CONDA/bin:$PATH"
+          source activate "${ENV_NAME}"
           pip install ./JackFramework/Source
 
-      - name: Verify JackFramework imports
-        run: python -c "import JackFramework as jf; print('JackFramework OK')"
-
-      - name: Lint
+      - name: Verify it imports
         run: |
-          flake8 Source --count --select=E9,F63,F7,F82 --show-source --statistics
-          flake8 Source --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
-
-      # The template must RUN, not merely import — this is the check that
-      # would have caught the postprocess/post_process breakage.
-      # 模板必须能**跑起来**而不只是能导入 —— 正是这一步能拦住
-      # postprocess/post_process 这类问题。
-      - name: Smoke test (train)
-        run: bash Scripts/start_train_dataset_model.sh
-
-      - name: Smoke test (test)
-        run: bash Scripts/start_test_dataset_model.sh
+          export PATH="$CONDA/bin:$PATH"
+          source activate "${ENV_NAME}"
+          python -c "import JackFramework as jf; print('JackFramework OK in', '${ENV_NAME}')"
