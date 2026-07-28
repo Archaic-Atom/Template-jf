@@ -14,17 +14,26 @@ jobs:
         with:
           python-version: '3.11'
 
+      # JackFramework has no install_requires, and `import JackFramework`
+      # eagerly pulls cv2, numpy, torch, PIL, django and
+      # torch.utils.tensorboard. Miss any one and the import fails before
+      # a single line of user code runs.
+      # JackFramework 的 setup.py 没有 install_requires，而
+      # `import JackFramework` 会急切加载 cv2 / numpy / torch / PIL /
+      # django / torch.utils.tensorboard —— 少装一个，导入阶段就失败。
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
           pip install torch --index-url https://download.pytorch.org/whl/cpu
-          pip install flake8
+          pip install opencv-python-headless numpy pillow django tensorboard flake8
 
       - name: Install JackFramework
         run: |
           git clone --depth 1 https://github.com/Archaic-Atom/JackFramework
-          cd JackFramework
-          pip install ./Source
+          pip install ./JackFramework/Source
+
+      - name: Verify JackFramework imports
+        run: python -c "import JackFramework as jf; print('JackFramework OK')"
 
       - name: Lint
         run: |
