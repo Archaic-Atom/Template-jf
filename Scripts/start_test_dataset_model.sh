@@ -1,29 +1,45 @@
 #!/bin/bash
-# parameter
-test_gpus_id=2,3
-eva_gpus_id=0
-test_list_path='./Datasets/kitti2015_training_list.csv'
-evalution_format='training'
+# ============================================================
+# Test launcher for the JackFramework template.
+# JackFramework 模板的测试启动脚本。
+#
+# --modelDir accepts EITHER a directory (JF reads checkpoint.list inside)
+# OR a .pth file directly. A directory without checkpoint.list fails with
+# "Checkpoint list file not found" and nothing loads.
+# --modelDir 既可以给**目录**（JF 读里面的 checkpoint.list），
+# 也可以直接给 **.pth 文件**。给了目录却没有 checkpoint.list 会报
+# "Checkpoint list file not found" 且什么都不加载。
+# ============================================================
+set -e
 
-echo "test gpus id: "${test_gpus_id}
-echo "the list path is: "${test_list_path}
-echo "start to predict disparity map"
-CUDA_VISIBLE_DEVICES=${test_gpus_id} python -u Source/main.py \
-                        --mode test \
-                        --batchSize 4 \
-                        --gpu 4 \
-                        --trainListPath ${test_list_path} \
-                        --imgWidth 1536 \
-                        --imgHeight 512 \
-                        --dataloaderNum 16 \
-                        --maxEpochs 45 \
-                        --imgNum 200 \
-                        --sampleNum 1 \
-                        --lr 0.0001 \
-                        --log ./TestLog/ \
-                        --dist False \
-                        --modelName model_name \
-                        --outputDir ./DebugResult/ \
-                        --modelDir ./Checkpoint/ \
-                        --dataset dataset_name
-echo "Finish!"
+model_name='YourModel'          # must match model_zoo key
+dataset_name='YourDataloader'   # must match dataloaders_zoo key
+test_list_path='./Datasets/dataset_example_training_list.csv'
+
+out_dir='./Result/'
+model_dir='./Checkpoint/'
+log_dir='./log/'
+
+mkdir -p ${out_dir} ${log_dir}
+
+echo "Begin to test the model!"
+python -u Source/main.py \
+    --mode test \
+    --dist False \
+    --gpu 0 \
+    --batchSize 4 \
+    --imgNum 16 \
+    --dataloaderNum 0 \
+    --modelName ${model_name} \
+    --dataset ${dataset_name} \
+    --trainListPath ${test_list_path} \
+    --modelDir ${model_dir} \
+    --outputDir ${out_dir} \
+    --resultImgDir ${out_dir} \
+    --log ${log_dir}
+
+# If the run finishes but no final CSV appears, the per-rank temp files
+# already hold the predictions: <outputDir>/.tmp_test_*_rank<N>.csv
+# (leading dot — plain `ls` hides them).
+# 如果跑完没有最终 CSV，预测其实已经在各 rank 的临时文件里：
+# <outputDir>/.tmp_test_*_rank<N>.csv（前导点，普通 ls 看不见）。

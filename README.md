@@ -1,296 +1,174 @@
 # Template-jf
-[![Use the JackFramework Demo](https://github.com/Archaic-Atom/FrameworkTemplate/actions/workflows/build_env.yml/badge.svg?event=push)](https://github.com/Archaic-Atom/FrameworkTemplate/actions/workflows/build_env.yml)
-![Python 3.8](https://img.shields.io/badge/python-3.8-green.svg?style=plastic)
-![Pytorch 1.7](https://img.shields.io/badge/PyTorch%20-%23EE4C2C.svg?style=plastic)
-![cuDnn 7.3.6](https://img.shields.io/badge/cudnn-7.3.6-green.svg?style=plastic)
+
+![Python 3.10+](https://img.shields.io/badge/python-3.10+-green.svg?style=plastic)
+![PyTorch 2.x](https://img.shields.io/badge/PyTorch%202.x-%23EE4C2C.svg?style=plastic)
 ![License MIT](https://img.shields.io/badge/license-MIT-green.svg?style=plastic)
 
->This is template project for JackFramework (https://github.com/Archaic-Atom/JackFramework). **It is used to rapidly build the model, without caring about the training process (such as DDP or DP, Tensorboard, et al.)**
+> Project template for **[JackFramework](https://github.com/Archaic-Atom/JackFramework)**.
+> JackFramework owns the training loop, DDP launcher, checkpoint I/O, logging,
+> progress bar and resume; you supply a model interface, a dataloader and a launcher.
+>
+> JackFramework 项目模板。框架负责训练循环、DDP 启动、checkpoint 读写、日志、
+> 进度条和续训；你只需提供模型接口、dataloader 和启动脚本。
 
-Document：https://www.wolai.com/archaic-atom/rqKJVi7M1x44mPT8CdM1TL
+**This template runs as-is.** Out of the box it trains a tiny MLP on synthetic
+tensors, so you can verify your environment before writing a line of your own code.
+Replace the parts marked `REPLACE`.
 
-Demo Project: https://github.com/Archaic-Atom/Demo-jf
+**本模板开箱即跑。** 出厂状态会用合成张量训练一个极小的 MLP —— 在动手写自己的
+代码之前就能验证环境是否正常。把标了 `REPLACE` 的部分换掉即可。
 
 ---
-### Software Environment
-1. OS Environment
-```
-os >= linux 16.04
-cudaToolKit == 10.1
-cudnn == 7.3.6
+
+## Quick start / 快速开始
+
+```bash
+# 1. Install JackFramework  安装框架
+git clone https://github.com/Archaic-Atom/JackFramework && cd JackFramework && ./install.sh
+
+# 2. Smoke-test this template (CPU is fine)  冒烟测试（CPU 即可）
+cd Template-jf
+bash Scripts/start_train_dataset_model.sh     # trains 10 epochs on synthetic data
+bash Scripts/start_test_dataset_model.sh      # loads the last checkpoint and runs test
 ```
 
-2. Python Environment (We provide the whole env in )
-```
-python >= 3.8.5
-pythorch >= 1.15.0
-numpy >= 1.14.5
-opencv >= 3.4.0
-PIL >= 5.1.0
-```
+If both finish with `The Application has finished successfully.` your setup is good.
+
+两条都以 `The Application has finished successfully.` 结束就说明环境没问题。
+
 ---
-### Hardware Environment
-The framework only can be used in GPUs.
 
-### Train the model by running:
-0. Install the JackFramework lib from Github (https://github.com/Archaic-Atom/JackFramework)
-```
-$ cd JackFramework/
-$ ./install.sh
-```
+## What to edit / 要改哪些文件
 
-1. Get the Training list or Testing list （You need rewrite the code by your path, and my related demo code can be found in Source/Tools/genrate_**_traning_path.py）
-```
-$ ./GenPath.sh
-```
-Please check the path. The source code in Source/Tools.
+| File | Role |
+|---|---|
+| `Source/UserModelImplementation/Models/your_model/inference.py` | your network + loss + metric |
+| `Source/UserModelImplementation/Models/__init__.py` | register it under a `--modelName` key |
+| `Source/UserModelImplementation/Dataloaders/your_dataloader.py` | your dataset + batch splitting |
+| `Source/UserModelImplementation/Dataloaders/__init__.py` | register it under a `--dataset` key |
+| `Source/UserModelImplementation/user_interface.py` | extra CLI flags |
+| `Scripts/start_*_dataset_model.sh` | launch parameters |
 
-2. Implement the model's interface and dataloader's interface of JackFramework in Source/UserModelImplementation/Models/your_model/inference.py and Source/UserModelImplementation/Dataloaders/your_dataloader.py.
-
-The template of model is shown in follows:
-```python
-# -*- coding: utf-8 -*-
-# import torch
-# import torch.nn as nn
-# import torch.nn.functional as F
-# import torch.optim as optim
-
-import JackFramework as jf
-# import UserModelImplementation.user_define as user_def
-
-
-class YourModelInterface(jf.UserTemplate.ModelHandlerTemplate):
-    """docstring for DeepLabV3Plus"""
-
-    def __init__(self, args: object) -> object:
-        super().__init__(args)
-        self.__args = args
-
-    def get_model(self) -> list:
-        # args = self.__args
-        # return model
-        return []
-
-    def optimizer(self, model: list, lr: float) -> list:
-        # args = self.__args
-        # return opt and sch
-        return [], []
-
-    def lr_scheduler(self, sch: object, ave_loss: list, sch_id: int) -> None:
-        # how to do schenduler
-        pass
-
-    def inference(self, model: list, input_data: list, model_id: int) -> list:
-        # args = self.__args
-        # return output
-        return []
-
-    def accuary(self, output_data: list, label_data: list, model_id: int) -> list:
-        # return acc
-        # args = self.__args
-        return []
-
-    def loss(self, output_data: list, label_data: list, model_id: int) -> list:
-        # return loss
-        # args = self.__args
-        return []
-
-    # Optional
-    def pretreatment(self, epoch: int, rank: object) -> None:
-        # do something before training epoch
-        pass
-
-    # Optional
-    def postprocess(self, epoch: int, rank: object,
-                    ave_tower_loss: list, ave_tower_acc: list) -> None:
-        # do something after training epoch
-        pass
-
-    # Optional
-    def load_model(self, model: object, checkpoint: dict, model_id: int) -> bool:
-        # return False
-        return False
-
-    # Optional
-    def load_opt(self, opt: object, checkpoint: dict, model_id: int) -> bool:
-        # return False
-        return False
-
-    # Optional
-    def save_model(self, epoch: int, model_list: list, opt_list: list) -> dict:
-        # return None
-        return None
-
-```
-
-The template of Dataloader is shown in follows:
-```python
-# -*- coding: utf-8 -*-
-import time
-import JackFramework as jf
-# import UserModelImplementation.user_define as user_def
-
-
-class YourDataloader(jf.UserTemplate.DataHandlerTemplate):
-    """docstring for DataHandlerTemplate"""
-
-    def __init__(self, args: object) -> object:
-        super().__init__(args)
-        self.__args = args
-        self.__result_str = jf.ResultStr()
-        self.__train_dataset = None
-        self.__val_dataset = None
-        self.__imgs_num = 0
-        self.__start_time = 0
-
-    def get_train_dataset(self, path: str, is_training: bool = True) -> object:
-        # args = self.__args
-        # return dataset
-        return None
-
-    def get_val_dataset(self, path: str) -> object:
-        # return dataset
-        # args = self.__args
-        # return dataset
-        return None
-
-    def split_data(self, batch_data: tuple, is_training: bool) -> list:
-        self.__start_time = time.time()
-        if is_training:
-            # return input_data_list, label_data_list
-            return [], []
-            # return input_data, supplement
-        return [], []
-
-    def show_train_result(self, epoch: int, loss:
-                          list, acc: list,
-                          duration: float) -> None:
-        assert len(loss) == len(acc)  # same model number
-        info_str = self.__result_str.training_result_str(epoch, loss[0], acc[0], duration, True)
-        jf.log.info(info_str)
-
-    def show_val_result(self, epoch: int, loss:
-                        list, acc: list,
-                        duration: float) -> None:
-        assert len(loss) == len(acc)  # same model number
-        info_str = self.__result_str.training_result_str(epoch, loss[0], acc[0], duration, False)
-        jf.log.info(info_str)
-
-    def save_result(self, output_data: list, supplement: list,
-                    img_id: int, model_id: int) -> None:
-        assert self.__train_dataset is not None
-        # args = self.__args
-        # save method
-        pass
-
-    def show_intermediate_result(self, epoch: int,
-                                 loss: list, acc: list) -> str:
-        assert len(loss) == len(acc)  # same model number
-        return self.__result_str.training_intermediate_result(epoch, loss[0], acc[0])
-
-
-```
-
-you must implement the related class for using JackFramework, the demo can be find in Source/UserModelImplementation/Models/Your_Model/inference.py or Source/UserModelImplementation/Dataloaders/your_dataloader.py. Or you can find the other demo in Demo project.
-
-Next, you need implement the interface file Source/user_interface.py (you can add some parameters in user\_parser function of this file ), as shown in follows:
-```python
-# -*- coding: utf-8 -*-
-import argparse
-import JackFramework as jf
-# import UserModelImplementation.user_define as user_def
-
-# model and dataloader
-from UserModelImplementation import Models
-from UserModelImplementation import Dataloaders
-
-
-class UserInterface(jf.UserTemplate.NetWorkInferenceTemplate):
-    """docstring for UserInterface"""
-
-    def __init__(self) -> object:
-        super().__init__()
-
-    def inference(self, args: object) -> object:
-        dataloader = Dataloaders.dataloaders_zoo(args, args.dataset)
-        model = Models.model_zoo(args, args.modelName)
-        return model, dataloader
-
-    def user_parser(self, parser: object) -> object:
-        # parser.add_argument('--startDisp', type=int, default=user_def.START_DISP,
-        #                    help='start disparity')
-        # return parser
-        return None
-
-    @staticmethod
-    def __str2bool(arg: str) -> bool:
-        if arg.lower() in ('yes', 'true', 't', 'y', '1'):
-            return True
-        elif arg.lower() in ('no', 'false', 'f', 'n', '0'):
-            return False
-        else:
-            raise argparse.ArgumentTypeError('Boolean value expected.')
-```
-
-Finally, you need pass this object to JackFramework, as shown in follows:
-```python
-# -*coding: utf-8 -*-
-import JackFramework as jf
-from UserModelImplementation.user_interface import UserInterface
-
-
-def main()->None:
-    app = jf.Application(UserInterface(), "Stereo Matching Models")
-    app.start()
-
-
-# execute the main function
-if __name__ == "__main__":
-    main()
-
-```
-
-3. Run the program, like:
-```
-$ ./Scripts/start_debug_stereo_net.sh
-```
 ---
-### File Structure
+
+## Contract rules that actually bite / 真正会坑到人的几条约定
+
+1. **`inference()` must return a LIST**, even for a single model — `[output]`.
+   `loss()` and `accuracy()` receive that list, not the tensor. Unwrap with
+   `output_data[self.ID_PRED]` (index 0) first.
+   **`inference()` 必须返回 list**，哪怕只有一个模型。`loss()` / `accuracy()`
+   收到的是这个 list 而不是张量，先用 `output_data[self.ID_PRED]`（下标 0）解包。
+
+2. **Hook names are validated at class-definition time.** `post_process` has an
+   underscore; writing `postprocess` now raises `TypeError` immediately instead of
+   being silently skipped. Same for `pretreatment`, `load_model`, `load_opt`,
+   `save_model`.
+   **hook 名字在类定义时就会被校验。** `post_process` 带下划线；写成 `postprocess`
+   会立刻抛 `TypeError`，不再是静默跳过。
+
+3. **Zoo keys must match the launcher.** `--modelName` must equal a key in
+   `model_zoo`, `--dataset` a key in `dataloaders_zoo`. A mismatch fails with a
+   bare `AssertionError` and no hint.
+   **zoo 的 key 必须和启动脚本一致**，对不上只会抛一个无提示的 `AssertionError`。
+
+4. **`user_parser()` must return the parser.** JackFramework only keeps the return
+   value if it is an `argparse.ArgumentParser`; returning `None` silently discards
+   every flag you added.
+   **`user_parser()` 必须把 parser 返回**，返回 `None` 会让你加的参数被静默丢弃。
+
+5. **`--gpu` is a COUNT, not a device list.** Select devices with
+   `CUDA_VISIBLE_DEVICES`. `--port` must differ between concurrent runs.
+   **`--gpu` 是数量不是设备列表**；设备用 `CUDA_VISIBLE_DEVICES` 选，
+   并发任务的 `--port` 必须错开。
+
+6. **Always debug single-process first** (`--dist False --gpu 0/1`). DDP swallows
+   tracebacks — an empty `ProcessRaisedException` usually means a registered
+   parameter got no gradient (frozen backbone), not a C-level crash.
+   **永远先单进程调试**。DDP 会吞掉 traceback —— 空的 `ProcessRaisedException`
+   通常是有注册参数没拿到梯度（冻结的 backbone），不是 C 层崩溃。
+
+7. **`get_train_dataset(path, is_training)` also builds the TEST set** when called
+   with `is_training=False`. The name is misleading; honour the flag.
+   **`get_train_dataset` 在 `is_training=False` 时构建的是测试集**，名字有误导性。
+
+8. **`--modelDir` accepts a directory or a `.pth` file.** A directory without
+   `checkpoint.list` inside fails with `Checkpoint list file not found` and loads
+   nothing. The FIRST line of that file is what loads next — not the
+   highest-numbered file.
+   **`--modelDir` 既可给目录也可给 `.pth`。** 给目录但里面没有 `checkpoint.list`
+   会报 `Checkpoint list file not found` 且什么都不加载；该文件**第一行**才是
+   下次加载的对象，不是编号最大的那个。
+
+---
+
+## File structure / 目录结构
+
 ```
 Template-jf
-├── Datasets # Get it by ./generate_path.sh, you need build folder
-│   ├── dataset_example_training_list.csv
-│   └── ...
-├── Scripts # Get it by ./generate_path.sh, you need build folder
-│   ├── clean.sh         # clean the project
-│   ├── generate_path.sh # generate the tranining or testing list like kitti2015_val_list
-│   ├── start_train_dataset_model.sh # start training command
-│   └── ...
-├── Source # source code
-│   ├── UserModelImplementation
-│   │   ├── Models            # any models in this folder
-│   │   ├── Dataloaders       # any dataloaders in this folder
-│   │   ├── user_define.py    # any global variable in this fi
-│   │   └── user_interface.py # to use model and Dataloader
-│   ├── Tools # put some tools in this folder
-│   ├── main.py
-│   └── ...
+├── Datasets/                 training/testing list csv
+├── Scripts/
+│   ├── clean.sh              clean build artifacts
+│   ├── generate_path.sh      generate the training/testing list
+│   ├── kill_process.sh
+│   ├── start_train_dataset_model.sh
+│   └── start_test_dataset_model.sh
+├── Source/
+│   ├── UserModelImplementation/
+│   │   ├── Models/
+│   │   │   ├── __init__.py           model_zoo  (--modelName)
+│   │   │   └── your_model/
+│   │   │       └── inference.py      model interface  <- edit
+│   │   ├── Dataloaders/
+│   │   │   ├── __init__.py           dataloaders_zoo  (--dataset)
+│   │   │   └── your_dataloader.py    data interface   <- edit
+│   │   ├── user_define.py            global constants
+│   │   └── user_interface.py         wires the two zoos together
+│   ├── Tools/
+│   └── main.py
 ├── LICENSE
 └── README.md
 ```
+
+Note: directory names are lowercase (`your_model`, not `Your_Model`). macOS is
+case-insensitive and will hide a mismatch that breaks the import on Linux.
+
+注意：目录名用小写（`your_model` 而非 `Your_Model`）。macOS 不区分大小写会掩盖
+这个问题，但在 Linux 上会直接 import 失败。
+
 ---
-### Update log
-#### 2021-05-29
+
+## Update log
+
+### 2026-07-28
+1. Fixed `postprocess` -> `post_process` — the old name is now rejected by
+   JackFramework's hook-name validation at class-definition time.
+2. Fixed zoo keys vs launcher flags (`YourMode`/`your_model`/`dataset_name` all
+   disagreed); launchers now use `YourModel` / `YourDataloader`.
+3. Fixed the never-matching `case('')` default branch, which left `model`
+   unassigned and raised `UnboundLocalError` on a wrong `--modelName`.
+4. Renamed `Models/Your_Model/` -> `Models/your_model/` to match what git tracked;
+   the old mixed case broke the import on case-sensitive filesystems.
+5. `user_parser()` now returns the parser instead of `None`.
+6. Removed the duplicated `__str2bool` (the base class provides `_str2bool`).
+7. Launchers no longer hardcode an 8-GPU box, a Scene Flow list path that is not in
+   this repo, or `--imgNum 35454`; defaults now run on CPU against the bundled
+   synthetic dataset.
+8. Model and dataloader now ship a runnable tiny example instead of returning
+   empty lists, so the template can be smoke-tested end to end.
+9. README rewritten — the previous embedded snippets contained `postprocess` and
+   `accuary` (sic), both of which fail immediately on current JackFramework.
+
+### 2021-05-29
 1. Add the depth for transformer;
 2. Fork the JackFramework to a new project;
 3. Remove the JackFramework from this project.
 
-#### 2021-04-08
+### 2021-04-08
 1. Add the stereo;
 2. Add transformer.
 
-#### 2021-01-13
-1. Fork a new prject (based on pythorch);
+### 2021-01-13
+1. Fork a new project (based on pytorch);
 2. Use a new code style;
-3. Build the frameworks for pythorch;
+3. Build the frameworks for pytorch;
 4. Write ReadMe
