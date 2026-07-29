@@ -1,5 +1,7 @@
 # Template-jf
 
+[![Smoke test](https://github.com/Archaic-Atom/Template-jf/actions/workflows/smoke.yml/badge.svg?branch=master)](https://github.com/Archaic-Atom/Template-jf/actions/workflows/smoke.yml)
+[![Build env](https://github.com/Archaic-Atom/Template-jf/actions/workflows/build_env.yml/badge.svg)](https://github.com/Archaic-Atom/Template-jf/actions/workflows/build_env.yml)
 ![Python 3.10+](https://img.shields.io/badge/python-3.10+-green.svg?style=plastic)
 ![PyTorch 2.x](https://img.shields.io/badge/PyTorch%202.x-%23EE4C2C.svg?style=plastic)
 ![License MIT](https://img.shields.io/badge/license-MIT-green.svg?style=plastic)
